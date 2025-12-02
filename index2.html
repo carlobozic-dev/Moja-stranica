@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Party Finder – Klubovi u Hrvatskoj</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0b0b0b;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: linear-gradient(90deg, #ff0080, #ff8c00);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+    }
+    #map {
+      height: 600px;
+      border-radius: 12px;
+      margin: 2rem auto;
+      max-width: 1000px;
+    }
+    section {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+    h2 {
+      color: #ff8c00;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .gradovi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .grad {
+      background: #1b1b1b;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .grad:hover {
+      transform: scale(1.03);
+    }
+    .grad h3 {
+      color: #ff0080;
+      margin-bottom: 0.5rem;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    ul li {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 0.4rem;
+    }
+    a {
+      color: #ff8c00;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #111;
+      color: #aaa;
+      margin-top: 2rem;
+    }
+    @media (max-width: 900px) {
+      .gradovi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .gradovi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Party Finder – Klubovi u Hrvatskoj</h1>
+    <p>Pronađi klubove, događaje i lokacije!</p>
+  </header>
+
+  <!-- Mapa -->
+  <section id="map-section">
+    <h2>Karta klubova</h2>
+    <div id="map"></div>
+  </section>
+
+  <!-- GRID s gradovima -->
+  <section id="gradovi">
+    <h2>Klubovi po gradovima</h2>
+    <div class="gradovi-grid">
+
+      <div class="grad">
+        <h3>Zagreb</h3>
+        <ul>
+          <li><a href="https://www.depozagreb.hr" target="_blank">Depo Club</a></li>
+          <li><a href="https://www.boogaloo.hr" target="_blank">Boogaloo</a></li>
+          <li><a href="https://out-bar.hr" target="_blank">Out Bar / Club</a></li>
+          <li><a href="https://katranzagreb.hr" target="_blank">Katran</a></li>
+          <li><a href="https://močvara.hr" target="_blank">Močvara</a></li>
+        </ul>
+      </div>
+
+      <div class="grad">
+        <h3>Split</h3>
+        <ul>
+          <li><a href="https://vanilla-club.hr" target="_blank">Vanilla Club</a></li>
+          <li><a href="https://centralclub.hr" target="_blank">Central Club</a></li>
+          <li><a href="https://club305split.hr" target="_blank">Club 305</a></li>
+          <li><a href="https://kocka-club.com" target="_blank">Kocka Club</a></li>
+          <li><a href="https://academiaghetto.com" target="_blank">Academia Ghetto</a></li>
+        </ul>
+      </div>
+
+      <div class="grad">
+        <h3>Zadar</h3>
+        <ul>
+          <li><a href="https://clubrawzadar.hr" target="_blank">Club RAW</a></li>
+          <li><a href="https://clubpapaya-zadar.hr" target="_blank">Papaya Zadar</a></li>
+          <li><a href="https://clubbluedaydream.hr" target="_blank">Blue Daydream Club</a></li>
+          <li><a href="https://clubhalo-zadar.hr" target="_blank">Halo Club</a></li>
+          <li><a href="https://clublux-zadar.hr" target="_blank">Lux Club Zadar</a></li>
+        </ul>
+      </div>
+
+      <div class="grad">
+        <h3>Rijeka</h3>
+        <ul>
+          <li><a href="https://crkva.club" target="_blank">Club Crkva</a></li>
+          <li><a href="https://karolina-club.com" target="_blank">Karolina Club</a></li>
+          <li><a href="https://indigo-bar.hr" target="_blank">Indigo Bar & Club</a></li>
+          <li><a href="https://ralphia-bar.com" target="_blank">Rakhia Bar / Klub</a></li>
+          <li><a href="https://garcon-club.hr" target="_blank">Garçon Club</a></li>
+        </ul>
+      </div>
+
+      <div class="grad">
+        <h3>Osijek</h3>
+        <ul>
+          <li><a href="https://clubsevenosijek.hr" target="_blank">Club Seven</a></li>
+          <li><a href="https://banquet-club.hr" target="_blank">Banquet Club</a></li>
+          <li><a href="https://clubvelvetosijek.hr" target="_blank">Club Velvet</a></li>
+          <li><a href="https://clubmixosijek.hr" target="_blank">Club Mix</a></li>
+          <li><a href="https://clubvibeosijek.hr" target="_blank">Club Vibe</a></li>
+        </ul>
+      </div>
+
+      <div class="grad">
+        <h3>Šibenik</h3>
+        <ul>
+          <li><a href="https://falconclubluxury.hr" target="_blank">Falcon Club Luxury</a></li>
+          <li><a href="https://clubsilence.hr" target="_blank">Club Silence</a></li>
+          <li><a href="https://aquaclub-sibenik.hr" target="_blank">Aqua Club</a></li>
+          <li><a href="https://metropolisclub.hr" target="_blank">Metropolis Club</a></li>
+          <li><a href="https://clubhype.hr" target="_blank">Club Hype</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Party Finder | Tvoj vodič kroz noćni život
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([45.1, 16.5], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    function dodajKlub(lat, lon, naziv, grad, link, slika) {
+      const marker = L.marker([lat, lon]).addTo(map);
+      marker.bindPopup(`
+        <div style="text-align:center;">
+          <h3><a href="${link}" target="_blank">${naziv}</a></h3>
+          <p><strong>Grad:</strong> ${grad}</p>
+          <img src="${slika}" alt="${naziv}" style="width:100%; border-radius:8px; margin-top:10px;">
+        </div>
+      `);
+    }
+
+    const klubovi = [
+      // Zagreb
+      [45.815010, 15.981919, "Depo Club", "Zagreb", "https://www.depozagreb.hr", "https://upload.wikimedia.org/wikipedia/commons/9/91/Nightclub.jpg"],
+      [45.815010, 15.981919, "Boogaloo", "Zagreb", "https://www.boogaloo.hr", "https://upload.wikimedia.org/wikipedia/commons/2/2b/Discoclub.jpg"],
+      [45.815010, 15.981919, "Out Bar / Club", "Zagreb", "https://out-bar.hr", "https://upload.wikimedia.org/wikipedia/commons/7/7e/Club_dancefloor.jpg"],
+      [45.815010, 15.981919, "Katran", "Zagreb", "https://katranzagreb.hr", "https://upload.wikimedia.org/wikipedia/commons/4/4b/Nightclub_lights.jpg"],
+      [45.815010, 15.981919, "Močvara", "Zagreb", "https://močvara.hr", "https://upload.wikimedia.org/wikipedia/commons/3/34/Club_interior.jpg"],
+      // Split
+      [43.508133, 16.440193, "Vanilla Club", "Split", "https://vanilla-club.hr", "https://upload.wikimedia.org/wikipedia/commons/9/9f/Club_Vanilla_Split.jpg"],
+      [43.508133, 16.440193, "Central Club", "Split", "https://centralclub.hr", "https://upload.wikimedia.org/wikipedia/commons/8/8c/Club_Central_Split.jpg"],
+      [43.508133, 16.440193, "Club 305", "Split", "https://club305split.hr", "https://upload.wikimedia.org/wikipedia/commons/5/57/Club_305_Split.jpg"],
+      [43.508133, 16.440193, "Kocka Club", "Split", "https://kocka-club.com", "https://upload.wikimedia.org/wikipedia/commons/6/6a/Kocka_Club_Split.jpg"],
+      [43.508133, 16.440193, "Academia Ghetto", "Split", "https://academiaghetto.com", "https://upload.wikimedia.org/wikipedia/commons/7/7d/Academia_Ghetto_Split.jpg"],
+      // Zadar
+      [44.119403, 15.243794, "Club RAW", "Zadar", "https://clubrawzadar.hr", "https://upload.wikimedia.org/wikipedia/commons/4/4c/Club_RAW_Zadar.jpg"],
+      [44.119403, 15.243794, "Papaya Zadar", "Zadar", "https://clubpapaya-zadar.hr", "https://upload.wikimedia.org/wikipedia/commons/2/2d/Papaya_Zadar.jpg"],
+      [44.119403, 15.243794, "Blue Daydream Club", "Zadar", "https://clubbluedaydream.hr", "https://upload.wikimedia.org/wikipedia/commons/1/1a/Blue_Daydream_Zadar.jpg"],
+      [44.119403, 15.243794, "Halo Club", "Zadar", "https://clubhalo-zadar.hr", "https://upload.wikimedia.org/wikipedia/commons/3/3b/Halo_Club_Zadar.jpg"],
+      [44.119403, 15.243794, "Lux Club Zadar", "Zadar", "https://clublux-zadar.hr", "https://upload.wikimedia.org/wikipedia/commons/8/8d/Lux_Club_Zadar.jpg"],
+      // Rijeka
+      [45.327063, 14.442176, "Club Crkva", "Rijeka", "https://crkva.club", "https://upload.wikimedia.org/wikipedia/commons/5/5e/Club_Crkva_Rijeka.jpg"],
+      [45.327063, 14.442176, "Karolina Club", "Rijeka", "https://karolina-club.com", "https://upload.wikimedia.org/wikipedia/commons/9/9b/Karolina_Club_Rijeka.jpg"],
+      [45.327063, 14.442176, "Indigo Bar & Club", "Rijeka", "https://indigo-bar.hr", "https://upload.wikimedia.org/wikipedia/commons/7/7f/Indigo_Bar_Rijeka.jpg"],
+      [45.327063, 14.442176, "Rakhia Bar / Klub", "Rijeka", "https://ralphia-bar.com", "https://upload.wikimedia.org/wikipedia/commons/6/6b/Rakhia_Bar_Rijeka.jpg"],
+      [45.327063, 14.442176, "Garçon Club", "Rijeka", "https://garcon-club.hr", "https://upload.wikimedia.org/wikipedia/commons/2/2f/Garcon_Club_Rijeka.jpg"],
+      // Osijek
+      [45.551110, 18.693880, "Club Seven", "Osijek", "https://clubsevenosijek.hr", "https://upload.wikimedia.org/wikipedia/commons/4/4f/Club_Seven_Osijek.jpg"],
+      [45.551110, 18.693880, "Banquet Club", "Osijek", "https://banquet-club.hr", "https://upload.wikimedia.org/wikipedia/commons/1/1e/Banquet_Club_Osijek.jpg"],
+      [45.551110, 18.693880, "Club Velvet", "Osijek", "https://clubvelvetosijek.hr", "https://upload.wikimedia.org/wikipedia/commons/8/8e/Club_Velvet_Osijek.jpg"],
+      [45.551110, 18.693880, "Club Mix", "Osijek", "https://clubmixosijek.hr", "https://upload.wikimedia.org/wikipedia/commons/3/3c/Club_Mix_Osijek.jpg"],
+      [45.551110, 18.693880, "Club Vibe", "Osijek", "https://clubvibeosijek.hr", "https://upload.wikimedia.org/wikipedia/commons/9/9c/Club_Vibe_Osijek.jpg"],
+      // Šibenik
+      [43.732540, 15.900290, "Falcon Club Luxury", "Šibenik", "https://falconclubluxury.hr", "https://upload.wikimedia.org/wikipedia/commons/5/5g/Falcon_Club_Sibenik.jpg"],
+      [43.732540, 15.900290, "Club Silence", "Šibenik", "https://clubsilence.hr", "https://upload.wikimedia.org/wikipedia/commons/7/7h/Club_Silence_Sibenik.jpg"],
+      [43.732540, 15.900290, "Aqua Club", "Šibenik", "https://aquaclub-sibenik.hr", "https://upload.wikimedia.org/wikipedia/commons/2/2g/Aqua_Club_Sibenik.jpg"],
+      [43.732540, 15.900290, "Metropolis Club", "Šibenik", "https://metropolisclub.hr", "https://upload.wikimedia.org/wikipedia/commons/1/1i/Metropolis_Club_Sibenik.jpg"],
+      [43.732540, 15.900290, "Club Hype", "Šibenik", "https://clubhype.hr", "https://upload.wikimedia.org/wikipedia/commons/3/3j/Club_Hype_Sibenik.jpg"]
+    ];
+
+    klubovi.forEach(k => dodajKlub(...k));
+  </script>
+</body>
+</html>
