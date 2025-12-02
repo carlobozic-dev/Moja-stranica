@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Finder</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -82,11 +83,215 @@
             transform: scale(1.05);
             background: linear-gradient(90deg, #ff8c00, #ff0080);
         }
+
+        /* Stilovi za formu */
+        .form-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-content {
+            background: #1b1b1b;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+        }
+
+        .form-content h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ff8c00;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .form-buttons button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .form-buttons .submit-btn {
+            background: linear-gradient(90deg, #ff0080, #ff8c00);
+            color: white;
+        }
+
+        .form-buttons .cancel-btn {
+            background: #555;
+            color: white;
+        }
+
+        .form-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .auth-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .auth-buttons button {
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .auth-buttons button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stilovi za mapu */
+        #map {
+            height: 600px;
+            border-radius: 10px;
+            margin: 2rem auto;
+            max-width: 1000px;
+        }
+
+        /* Stilovi za listu klubova */
+        .clubs-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .club-card {
+            background: #1b1b1b;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: 0.3s;
+        }
+
+        .club-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.3);
+        }
+
+        .club-card h3 {
+            margin-top: 0;
+            color: #ff8c00;
+        }
+
+        .club-card a {
+            color: #ff0080;
+            text-decoration: none;
+        }
+
+        .club-card a:hover {
+            text-decoration: underline;
+        }
+
+        .city-section {
+            margin-bottom: 3rem;
+        }
+
+        .city-section h3 {
+            color: #ff8c00;
+            border-bottom: 1px solid #ff8c00;
+            padding-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Sign In Form -->
+    <div id="signin-form" class="form-container">
+        <div class="form-content">
+            <h2>Prijava</h2>
+            <form id="signin-form-element">
+                <div class="form-group">
+                    <label for="signin-email">Email</label>
+                    <input type="email" id="signin-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signin-password">Lozinka</label>
+                    <input type="password" id="signin-password" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeForm('signin-form')">Odustani</button>
+                    <button type="submit" class="submit-btn">Prijavi se</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div id="signup-form" class="form-container">
+        <div class="form-content">
+            <h2>Registracija</h2>
+            <form id="signup-form-element">
+                <div class="form-group">
+                    <label for="signup-name">Ime</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Lozinka</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Potvrdi lozinku</label>
+                    <input type="password" id="signup-confirm-password" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeForm('signup-form')">Odustani</button>
+                    <button type="submit" class="submit-btn">Registriraj se</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <header>
+        <div class="auth-buttons">
+            <button onclick="openForm('signin-form')">Prijava</button>
+            <button onclick="openForm('signup-form')">Registracija</button>
+        </div>
         <h1>Party Finder</h1>
         <p>Pronađi najbolja mjesta za izlaske i skupljaj nagrade!</p>
     </header>
@@ -115,25 +320,235 @@
         <a href="#" class="cta">Preuzmi aplikaciju</a>
     </section>
 
-    <footer>
-        <p>© 2025 Party Finder | Tvoj vodič kroz noćni život</p>
-    </footer>
-
-</body>
-</html>
     <!-- SEKCIJA: Mapa uživo -->
     <section id="map-section">
         <h2 style="text-align:center;">Mapa klubova i događanja u Hrvatskoj</h2>
         <p style="text-align:center;">Pregledaj gdje se večeras najbolje partijaju i saznaj cijene, izvođače i evente!</p>
         
-        <div id="map" style="height:600px; border-radius:10px; margin: 2rem auto; max-width:1000px;"></div>
+        <div id="map"></div>
     </section>
 
-    <!-- LEAFLET MAPA SCRIPT -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- SEKCIJA: Lista klubova po gradovima -->
+    <section id="clubs-list">
+        <h2 style="text-align:center;">Klubovi po gradovima</h2>
+        
+        <div class="city-section">
+            <h3>Zagreb</h3>
+            <div class="clubs-list">
+                <div class="club-card">
+                    <h3><a href="https://www.depozagreb.hr" target="_blank">Depo Club</a></h3>
+                    <p><strong>Događaj:</strong> Techno Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~12 €, piće od ~4-5 €</p>
+                    <p><strong>Opis:</strong> Elektronika, duboki house i techno.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://www.boogaloo.hr" target="_blank">Boogaloo</a></h3>
+                    <p><strong>Događaj:</strong> Retro Party</p>
+                    <p><strong>Cijene:</strong> ulaz ~10 €, piće od ~4 €</p>
+                    <p><strong>Opis:</strong> Popularni pop/rock/disco klub.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://out-bar.hr" target="_blank">Out Bar / Club</a></h3>
+                    <p><strong>Događaj:</strong> House / Commercial</p>
+                    <p><strong>Cijene:</strong> ulaz ~9-10 €, piće od ~4 €</p>
+                    <p><strong>Opis:</strong> Komercijalna glazba, lako ulazak.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://katranzagreb.hr" target="_blank">Katran</a></h3>
+                    <p><strong>Događaj:</strong> Underground Session</p>
+                    <p><strong>Cijene:</strong> ulaz ~8-10 €, piće od ~3-4 €</p>
+                    <p><strong>Opis:</strong> Manji klub, alternativni program.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://močvara.hr" target="_blank">Močvara</a></h3>
+                    <p><strong>Događaj:</strong> Live Indie Band</p>
+                    <p><strong>Cijene:</strong> ulaz ~15 €, piće od ~5 €</p>
+                    <p><strong>Opis:</strong> Kultni klub u Zagrebu za live nastupe.</p>
+                </div>
+            </div>
+        </div>
 
+        <div class="city-section">
+            <h3>Split</h3>
+            <div class="clubs-list">
+                <div class="club-card">
+                    <h3><a href="https://vanilla-club.hr" target="_blank">Vanilla Club</a></h3>
+                    <p><strong>Događaj:</strong> Summer Vibes Party</p>
+                    <p><strong>Cijene:</strong> ulaz ~15 €, piće od ~6 €</p>
+                    <p><strong>Opis:</strong> Popularan turistički klub.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://centralclub.hr" target="_blank">Central Club</a></h3>
+                    <p><strong>Događaj:</strong> Mainstream Hits Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~12 €, piće od ~5 €</p>
+                    <p><strong>Opis:</strong> Glavna partijska zona u Splitu.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://club305split.hr" target="_blank">Club 305</a></h3>
+                    <p><strong>Događaj:</strong> Electronic Tour</p>
+                    <p><strong>Cijene:</strong> ulaz ~10-12 €, piće od ~5-6 €</p>
+                    <p><strong>Opis:</strong> Manji, ali poznat klub.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://kocka-club.com" target="_blank">Kocka Club</a></h3>
+                    <p><strong>Događaj:</strong> Hard Techno Rave</p>
+                    <p><strong>Cijene:</strong> ulaz ~8-10 €, piće od ~4 €</p>
+                    <p><strong>Opis:</strong> Alternativniji techno program.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://academiaghetto.com" target="_blank">Academia Ghetto</a></h3>
+                    <p><strong>Događaj:</strong> Hip-Hop Live</p>
+                    <p><strong>Cijene:</strong> ulaz ~12 €, piće od ~5 €</p>
+                    <p><strong>Opis:</strong> Hip-hop i R&B scena.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="city-section">
+            <h3>Rijeka</h3>
+            <div class="clubs-list">
+                <div class="club-card">
+                    <h3><a href="https://crkva.club" target="_blank">Club Crkva</a></h3>
+                    <p><strong>Događaj:</strong> Underground Techno</p>
+                    <p><strong>Cijene:</strong> ulaz ~8-9 €, piće ~4 €</p>
+                    <p><strong>Opis:</strong> Elektronika u Rijeci.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://karolina-club.com" target="_blank">Karolina Club</a></h3>
+                    <p><strong>Događaj:</strong> House & Commercial</p>
+                    <p><strong>Cijene:</strong> ulaz ~10 €, piće ~5 €</p>
+                    <p><strong>Opis:</strong> Popularan među mladima.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://indigo-bar.hr" target="_blank">Indigo Bar & Club</a></h3>
+                    <p><strong>Događaj:</strong> Student Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~7-8 €, piće ~3-4 €</p>
+                    <p><strong>Opis:</strong> Povoljniji klub.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://ralphia-bar.com" target="_blank">Rakhia Bar / Klub</a></h3>
+                    <p><strong>Događaj:</strong> Đir po Starom Gradu</p>
+                    <p><strong>Cijene:</strong> ulaz ~free do ~5 €, piće ~3-4 €</p>
+                    <p><strong>Opis:</strong> Casual, bar + klub kombinacija.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://garcon-club.hr" target="_blank">Garçon Club</a></h3>
+                    <p><strong>Događaj:</strong> Late Night Commercial</p>
+                    <p><strong>Cijene:</strong> ulaz ~9-10 €, piće ~4-5 €</p>
+                    <p><strong>Opis:</strong> Hip & popularan.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="city-section">
+            <h3>Osijek</h3>
+            <div class="clubs-list">
+                <div class="club-card">
+                    <h3><a href="https://clubsevenosijek.hr" target="_blank">Club Seven</a></h3>
+                    <p><strong>Događaj:</strong> Commercial Hits Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~8-10 €, piće ~3-4 €</p>
+                    <p><strong>Opis:</strong> Jedan od večih u Osijeku.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://banquet-club.hr" target="_blank">Banquet Club</a></h3>
+                    <p><strong>Događaj:</strong> House & EDM</p>
+                    <p><strong>Cijene:</strong> ulaz ~9-11 €, piće ~4-5 €</p>
+                    <p><strong>Opis:</strong> EDM scena.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clubvelvetosijek.hr" target="_blank">Club Velvet</a></h3>
+                    <p><strong>Događaj:</strong> Latin Party</p>
+                    <p><strong>Cijene:</strong> ulaz ~7-9 €, piće ~3-4 €</p>
+                    <p><strong>Opis:</strong> Latin ritmovi.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clubmixosijek.hr" target="_blank">Club Mix</a></h3>
+                    <p><strong>Događaj:</strong> Student Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~5-6 €, piće ~2-3 €</p>
+                    <p><strong>Opis:</strong> Povoljna opcija.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clubvibeosijek.hr" target="_blank">Club Vibe</a></h3>
+                    <p><strong>Događaj:</strong> Dance Floor Extravaganza</p>
+                    <p><strong>Cijene:</strong> ulaz ~10-12 €, piće ~5-6 €</p>
+                    <p><strong>Opis:</strong> Veći event-format.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="city-section">
+            <h3>Zadar</h3>
+            <div class="clubs-list">
+                <div class="club-card">
+                    <h3><a href="https://clubrawzadar.hr" target="_blank">Club RAW</a></h3>
+                    <p><strong>Događaj:</strong> Beach After Party</p>
+                    <p><strong>Cijene:</strong> ulaz ~10 €, piće od ~4-5 €</p>
+                    <p><strong>Opis:</strong> Plažni klub, ljeto.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clubpapaya-zadar.hr" target="_blank">Papaya Zadar</a></h3>
+                    <p><strong>Događaj:</strong> Festival Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~20 €, piće ~6-7 €</p>
+                    <p><strong>Opis:</strong> Veći događaji.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clubbluedaydream.hr" target="_blank">Blue Daydream Club</a></h3>
+                    <p><strong>Događaj:</strong> Summer House Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~9-10 €, piće od ~4 €</p>
+                    <p><strong>Opis:</strong> House & EDM.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clubhalo-zadar.hr" target="_blank">Halo Club</a></h3>
+                    <p><strong>Događaj:</strong> Latin & Reggaeton</p>
+                    <p><strong>Cijene:</strong> ulaz ~11-12 €, piće od ~4-5 €</p>
+                    <p><strong>Opis:</strong> Fokus na latino ritmove.</p>
+                </div>
+                <div class="club-card">
+                    <h3><a href="https://clublux-zadar.hr" target="_blank">Lux Club Zadar</a></h3>
+                    <p><strong>Događaj:</strong> VIP Night</p>
+                    <p><strong>Cijene:</strong> ulaz ~15 €, piće ~6-7 €</p>
+                    <p><strong>Opis:</strong> VIP atmosfera.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 Party Finder | Tvoj vodič kroz noćni život</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
+        // Funkcije za upravljanje formama
+        function openForm(formId) {
+            document.getElementById(formId).style.display = 'flex';
+        }
+
+        function closeForm(formId) {
+            document.getElementById(formId).style.display = 'none';
+        }
+
+        // Rukovanje submit događajima formi
+        document.getElementById('signin-form-element').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Prijava uspješna! (Ovo je demo)');
+            closeForm('signin-form');
+        });
+
+        document.getElementById('signup-form-element').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                alert('Lozinke se ne podudaraju!');
+                return;
+            }
+            
+            alert('Registracija uspješna! (Ovo je demo)');
+            closeForm('signup-form');
+        });
+
         // Inicijalizacija mape – centar Hrvatske
         var map = L.map('map').setView([45.8, 16.0], 7);
 
@@ -144,260 +559,52 @@
         }).addTo(map);
 
         // Funkcija za dodavanje klubova
-        function dodajKlub(lat, lon, naziv, grad, dogadjaj, cijene, datum, slika) {
+        function dodajKlub(lat, lon, naziv, grad, dogadjaj, cijene, link) {
             const marker = L.marker([lat, lon]).addTo(map);
             marker.bindPopup(`
                 <div style="text-align:center;">
-                    <h3>${naziv}</h3>
+                    <h3><a href="${link}" target="_blank">${naziv}</a></h3>
                     <p><strong>Grad:</strong> ${grad}</p>
                     <p><strong>Događaj:</strong> ${dogadjaj}</p>
-                    <p><strong>Datum:</strong> ${datum}</p>
                     <p><strong>Cijene:</strong> ${cijene}</p>
-                    <img src="${slika}" alt="${naziv}" style="width:100%;border-radius:8px;margin-top:10px;">
                 </div>
             `);
         }
 
-        // PRIMJERI klubova (možeš dodati koliko želiš)
-        dodajKlub(45.815, 15.981, "Club Opera", "Zagreb", "DJ Snake Live", "Piće od 6€, stol od 120€", "8. studenog 2025.", "https://upload.wikimedia.org/wikipedia/commons/9/91/Nightclub.jpg");
-        dodajKlub(43.508, 16.44, "Vanilla Club", "Split", "Techno Night", "Piće od 5€, boca od 90€", "9. studenog 2025.", "https://upload.wikimedia.org/wikipedia/commons/2/2b/Discoclub.jpg");
-        dodajKlub(45.327, 14.442, "Crkva", "Rijeka", "Hip Hop Showcase", "Piće od 4€, stol od 100€", "10. studenog 2025.", "https://upload.wikimedia.org/wikipedia/commons/7/7e/Club_dancefloor.jpg");
-        dodajKlub(44.868, 13.85, "Byblos", "Poreč", "Summer Closing Party", "Piće od 7€, ulaznica 15€", "15. studenog 2025.", "https://upload.wikimedia.org/wikipedia/commons/4/4b/Nightclub_lights.jpg");
-    </script>
-dodajKlub(latitude, longitude, "Naziv kluba", "Grad", "Naziv eventa", "Cijene", "Datum", "URL slike");
-<!DOCTYPE html>
-<html lang="hr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Finder – Klubovi Hrvatska</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #111; color: #eee; margin:0; padding:0; }
-        header { text-align:center; padding:2rem 1rem; background: #222; }
-        header h1 { margin:0; font-size:2.5rem; color:#ff0080; }
-        section { max-width:1200px; margin:auto; padding:2rem 1rem; }
-        h2 { color:#ff8c00; margin-bottom:0.5rem; }
-        ul { list-style:none; padding:0; }
-        ul li { margin-bottom:1.5rem; }
-        a { color:#ff0080; text-decoration:none; }
-        a:hover { text-decoration:underline; }
-        #map { height:600px; border-radius:10px; margin:2rem auto; max-width:1000px; }
-    </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-</head>
-<body>
-    <header>
-        <h1>Party Finder – Klubovi u Hrvatskoj</h1>
-        <p>Pronađi klubove, događaje, cijene i lokacije na karti</p>
-    </header>
+        // Klubovi u Zagrebu
+        dodajKlub(45.815, 15.981, "Depo Club", "Zagreb", "Techno Night", "ulaz ~12 €, piće od ~4-5 €", "https://www.depozagreb.hr");
+        dodajKlub(45.812, 15.975, "Boogaloo", "Zagreb", "Retro Party", "ulaz ~10 €, piće od ~4 €", "https://www.boogaloo.hr");
+        dodajKlub(45.810, 15.985, "Out Bar / Club", "Zagreb", "House / Commercial", "ulaz ~9-10 €, piće od ~4 €", "https://out-bar.hr");
+        dodajKlub(45.808, 15.978, "Katran", "Zagreb", "Underground Session", "ulaz ~8-10 €, piće od ~3-4 €", "https://katranzagreb.hr");
+        dodajKlub(45.805, 15.990, "Močvara", "Zagreb", "Live Indie Band", "ulaz ~15 €, piće od ~5 €", "https://močvara.hr");
 
-    <section id="map-section">
-        <h2>Karta klubova</h2>
-        <div id="map"></div>
-    </section>
+        // Klubovi u Splitu
+        dodajKlub(43.508, 16.440, "Vanilla Club", "Split", "Summer Vibes Party", "ulaz ~15 €, piće od ~6 €", "https://vanilla-club.hr");
+        dodajKlub(43.510, 16.445, "Central Club", "Split", "Mainstream Hits Night", "ulaz ~12 €, piće od ~5 €", "https://centralclub.hr");
+        dodajKlub(43.512, 16.438, "Club 305", "Split", "Electronic Tour", "ulaz ~10-12 €, piće od ~5-6 €", "https://club305split.hr");
+        dodajKlub(43.506, 16.442, "Kocka Club", "Split", "Hard Techno Rave", "ulaz ~8-10 €, piće od ~4 €", "https://kocka-club.com");
+        dodajKlub(43.514, 16.435, "Academia Ghetto", "Split", "Hip-Hop Live", "ulaz ~12 €, piće od ~5 €", "https://academiaghetto.com");
 
-    <section id="clubs-lista">
-        <h2>Popis klubova i barova po gradovima</h2>
+        // Klubovi u Rijeci
+        dodajKlub(45.327, 14.442, "Club Crkva", "Rijeka", "Underground Techno", "ulaz ~8-9 €, piće ~4 €", "https://crkva.club");
+        dodajKlub(45.330, 14.445, "Karolina Club", "Rijeka", "House & Commercial", "ulaz ~10 €, piće ~5 €", "https://karolina-club.com");
+        dodajKlub(45.325, 14.440, "Indigo Bar & Club", "Rijeka", "Student Night", "ulaz ~7-8 €, piće ~3-4 €", "https://indigo-bar.hr");
+        dodajKlub(45.332, 14.438, "Rakhia Bar / Klub", "Rijeka", "Đir po Starom Gradu", "ulaz ~free do ~5 €, piće ~3-4 €", "https://ralphia-bar.com");
+        dodajKlub(45.328, 14.435, "Garçon Club", "Rijeka", "Late Night Commercial", "ulaz ~9-10 €, piće ~4-5 €", "https://garcon-club.hr");
 
-        <h3>Zagreb</h3>
-        <ul>
-            <li><strong><a href="https://www.depozagreb.hr" target="_blank">Depo Club</a></strong><br>
-                Događaj: (datum) „Techno Night”<br>
-                Cijene: ulaz ~12 € , piće od ~4-5 €<br>
-                Opis: Elektronika, duboki house i techno.</li>
-            <li><strong><a href="https://www.boogaloo.hr" target="_blank">Boogaloo</a></strong><br>
-                Događaj: (datum) „Retro Party”<br>
-                Cijene: ulaz ~10 € , piće od ~4 €<br>
-                Opis: Popularni pop/rock/disco klub.</li>
-            <li><strong><a href="https://out-bar.hr" target="_blank">Out Bar / Club</a></strong><br>
-                Događaj: (datum) „House / Commercial”<br>
-                Cijene: ulaz ~9-10 € , piće od ~4 €<br>
-                Opis: Komercijalna glazba, lako ulazak.</li>
-            <li><strong><a href="https://katranzagreb.hr" target="_blank">Katran</a></strong><br>
-                Događaj: (datum) „Underground Session”<br>
-                Cijene: ulaz ~8-10 € , piće od ~3-4 €<br>
-                Opis: Manji klub, alternativni program.</li>
-            <li><strong><a href="https://močvara.hr" target="_blank">Močvara</a></strong><br>
-                Događaj: (datum) „Live Indie Band”<br>
-                Cijene: ulaz ~15 € , piće od ~5 €<br>
-                Opis: Kultni klub u Zagrebu za live nastupe.</li>
-        </ul>
+        // Klubovi u Osijeku
+        dodajKlub(45.551, 18.693, "Club Seven", "Osijek", "Commercial Hits Night", "ulaz ~8-10 €, piće ~3-4 €", "https://clubsevenosijek.hr");
+        dodajKlub(45.555, 18.690, "Banquet Club", "Osijek", "House & EDM", "ulaz ~9-11 €, piće ~4-5 €", "https://banquet-club.hr");
+        dodajKlub(45.553, 18.695, "Club Velvet", "Osijek", "Latin Party", "ulaz ~7-9 €, piće ~3-4 €", "https://clubvelvetosijek.hr");
+        dodajKlub(45.557, 18.688, "Club Mix", "Osijek", "Student Night", "ulaz ~5-6 €, piće ~2-3 €", "https://clubmixosijek.hr");
+        dodajKlub(45.550, 18.698, "Club Vibe", "Osijek", "Dance Floor Extravaganza", "ulaz ~10-12 €, piće ~5-6 €", "https://clubvibeosijek.hr");
 
-        <h3>Split</h3>
-        <ul>
-            <li><strong><a href="https://vanilla-club.hr" target="_blank">Vanilla Club</a></strong><br>
-                Događaj: „Summer Vibes Party”<br>
-                Cijene: ulaz ~15 € , piće od ~6 €<br>
-                Opis: Popularan turistički klub.</li>
-            <li><strong><a href="https://centralclub.hr" target="_blank">Central Club</a></strong><br>
-                Događaj: „Mainstream Hits Night”<br>
-                Cijene: ulaz ~12 € , piće od ~5 €<br>
-                Opis: Glavna partijska zona u Splitu.</li>
-            <li><strong><a href="https://club305split.hr" target="_blank">Club 305</a></strong><br>
-                Događaj: „Electronic Tour”<br>
-                Cijene: ulaz ~10-12 € , piće od ~5-6 €<br>
-                Opis: Manji, ali poznat klub.</li>
-            <li><strong><a href="https://kocka-club.com" target="_blank">Kocka Club</a></strong><br>
-                Događaj: „Hard Techno Rave”<br>
-                Cijene: ulaz ~8-10 € , piće od ~4 €<br>
-                Opis: Alternativniji techno program.</li>
-            <li><strong><a href="https://academiaghetto.com" target="_blank">Academia Ghetto</a></strong><br>
-                Događaj: „Hip-Hop Live”<br>
-                Cijene: ulaz ~12 € , piće od ~5 €<br>
-                Opis: Hip-hop i R&B scena.</li>
-        </ul>
-
-        <h3>Zadar</h3>
-        <ul>
-            <li><strong><a href="https://clubrawzadar.hr" target="_blank">Club RAW</a></strong><br>
-                Događaj: „Beach After Party”<br>
-                Cijene: ulaz ~10 € , piće od ~4-5 €<br>
-                Opis: Plažni klub, ljeto.</li>
-            <li><strong><a href="https://clubpapaya-zadar.hr" target="_blank">Papaya Zadar</a></strong><br>
-                Događaj: „Festival Night”<br>
-                Cijene: ulaz ~20 € , piće ~6-7 €<br>
-                Opis: Veći događaji.</li>
-            <li><strong><a href="https://clubbluedaydream.hr" target="_blank">Blue Daydream Club</a></strong><br>
-                Događaj: „Summer House Night”<br>
-                Cijene: ulaz ~9-10 € , piće od ~4 €<br>
-                Opis: House & EDM.</li>
-            <li><strong><a href="https://clubhalo-zadar.hr" target="_blank">Halo Club</a></strong><br>
-                Događaj: „Latin & Reggaeton”<br>
-                Cijene: ulaz ~11-12 € , piće od ~4-5 €<br>
-                Opis: Fokus na latino ritmove.</li>
-            <li><strong><a href="https://clublux-zadar.hr" target="_blank">Lux Club Zadar</a></strong><br>
-                Događaj: „VIP Night”<br>
-                Cijene: ulaz ~15 € , piće ~6-7 €<br>
-                Opis: VIP atmosfera.</li>
-        </ul>
-
-        <h3>Rijeka</h3>
-        <ul>
-            <li><strong><a href="https://crkva.club" target="_blank">Club Crkva</a></strong><br>
-                Događaj: „Underground Techno”<br>
-                Cijene: ulaz ~8-9 € , piće ~4 €<br>
-                Opis: Elektronika u Rijeci. :contentReference[oaicite:0]{index=0}</li>
-            <li><strong><a href="https://karolina-club.com" target="_blank">Karolina Club</a></strong><br>
-                Događaj: „House & Commercial”<br>
-                Cijene: ulaz ~10 € , piće ~5 €<br>
-                Opis: Popularan među mladima.</li>
-            <li><strong><a href="https://indigo-bar.hr" target="_blank">Indigo Bar & Club</a></strong><br>
-                Događaj: „Student Night”<br>
-                Cijene: ulaz ~7-8 € , piće ~3-4 €<br>
-                Opis: Povoljniji klub.</li>
-            <li><strong><a href="https://ralphia-bar.com" target="_blank">Rakhia Bar / Klub</a></strong><br>
-                Događaj: „Đir po Starom Gradu”<br>
-                Cijene: ulaz ~free do ~5 € , piće ~3-4 €<br>
-                Opis: Casual, bar + klub kombinacija. :contentReference[oaicite:1]{index=1}</li>
-            <li><strong><a href="https://garcon-club.hr" target="_blank">Garçon Club</a></strong><br>
-                Događaj: „Late Night Commercial”<br>
-                Cijene: ulaz ~9-10 € , piće ~4-5 €<br>
-                Opis: Hip & popularan.</li>
-        </ul>
-
-        <h3>Osijek</h3>
-        <ul>
-            <li><strong><a href="https://clubsevenosijek.hr" target="_blank">Club Seven</a></strong><br>
-                Događaj: „Commercial Hits Night”<br>
-                Cijene: ulaz ~8-10 € , piće ~3-4 €<br>
-                Opis: Jedan od večih u Osijeku.</li>
-            <li><strong><a href="https://banquet-club.hr" target="_blank">Banquet Club</a></strong><br>
-                Događaj: „House & EDM”<br>
-                Cijene: ulaz ~9-11 € , piće ~4-5 €<br>
-                Opis: EDM scena.</li>
-            <li><strong><a href="https://clubvelvetosijek.hr" target="_blank">Club Velvet</a></strong><br>
-                Događaj: „Latin Party”<br>
-                Cijene: ulaz ~7-9 € , piće ~3-4 €<br>
-                Opis: Latin ritmovi.</li>
-            <li><strong><a href="https://clubmixosijek.hr" target="_blank">Club Mix</a></strong><br>
-                Događaj: „Student Night”<br>
-                Cijene: ulaz ~5-6 € , piće ~2-3 €<br>
-                Opis: Povoljna opcija.</li>
-            <li><strong><a href="https://clubvibeosijek.hr" target="_blank">Club Vibe</a></strong><br>
-                Događaj: „Dance Floor Extravaganza”<br>
-                Cijene: ulaz ~10-12 € , piće ~5-6 €<br>
-                Opis: Veći event-format.</li>
-        </ul>
-
-        <h3>Šibenik</h3>
-        <ul>
-            <li><strong><a href="https://falconclubluxury.hr" target="_blank">Falcon Club Luxury</a></strong><br>
-                Događaj: „VIP Summer Night”<br>
-                Cijene: ulaz ~12-14 € , piće ~6-7 €<br>
-                Opis: Luksuzniji klub.</li>
-            <li><strong><a href="https://clubsilence.hr" target="_blank">Club Silence</a></strong><br>
-                Događaj: „House / Chill”<br>
-                Cijene: ulaz ~8-9 € , piće ~4 €<br>
-                Opis: Mirniji koncept.</li>
-            <li><strong><a href="https://aquaclub-sibenik.hr" target="_blank">Aqua Club</a></strong><br>
-                Događaj: „Beach After Party”<br>
-                Cijene: ulaz ~10-11 € , piće ~5-6 €<br>
-                Opis: Klubska atmosfera blizu plaže.</li>
-            <li><strong><a href="https://metropolisclub.hr" target="_blank">Metropolis Club</a></strong><br>
-                Događaj: „Commercial Hits & Live Band”<br>
-                Cijene: ulaz ~11-12 € , piće ~5-6 €<br>
-                Opis: Velika dvorana, live program.</li>
-            <li><strong><a href="https://clubhype.hr" target="_blank">Club Hype</a></strong><br>
-                Događaj: „R&B / Hip-Hop Night”<br>
-                Cijene: ulaz ~9-10 € , piće ~4-5 €<br>
-                Opis: Urban ritmovi.</li>
-        </ul>
-    </section>
-
-    <footer style="text-align:center; padding:2rem 1rem; background:#222; color:#aaa;">
-        <p>© 2025 Party Finder | Tvoj vodič kroz noćni život u Hrvatskoj</p>
-    </footer>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        const map = L.map('map').setView([45.1,16.5], 6);  // centar Hrvatske
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-        function dodajKlub(lat, lon, naziv, grad, link) {
-            const marker = L.marker([lat, lon]).addTo(map);
-            marker.bindPopup(`
-                <div style="text-align:center;">
-                  <h3><a href="${link}" target="_blank">${naziv}</a></h3>
-                  <p><strong>Grad:</strong> ${grad}</p>
-                </div>
-            `);
-        }
-
-        // Primjeri klubova (dodaj točne koordinate za svaki)
-        dodajKlub(45.815010, 15.981919, "Depo Club", "Zagreb", "https://www.depozagreb.hr");
-        dodajKlub(45.815010, 15.981919, "Boogaloo", "Zagreb", "https://www.boogaloo.hr");
-        dodajKlub(45.815010, 15.981919, "Out Bar / Club", "Zagreb", "https://out-bar.hr");
-        dodajKlub(45.815010, 15.981919, "Katran", "Zagreb", "https://katranzagreb.hr");
-        dodajKlub(45.815010, 15.981919, "Močvara", "Zagreb", "https://močvara.hr");
-        dodajKlub(43.508133, 16.440193, "Vanilla Club", "Split", "https://vanilla-club.hr");
-        dodajKlub(43.508133, 16.440193, "Central Club", "Split", "https://centralclub.hr");
-        dodajKlub(43.508133, 16.440193, "Club 305", "Split", "https://club305split.hr");
-        dodajKlub(43.508133, 16.440193, "Kocka Club", "Split", "https://kocka-club.com");
-        dodajKlub(43.508133, 16.440193, "Academia Ghetto", "Split", "https://academiaghetto.com");
-        dodajKlub(44.119403, 15.243794, "Club RAW", "Zadar", "https://clubrawzadar.hr");
-        dodajKlub(44.119403, 15.243794, "Papaya Zadar", "Zadar", "https://clubpapaya-zadar.hr");
-        dodajKlub(44.119403, 15.243794, "Blue Daydream Club", "Zadar", "https://clubbluedaydream.hr");
-        dodajKlub(44.119403, 15.243794, "Halo Club", "Zadar", "https://clubhalo-zadar.hr");
-        dodajKlub(44.119403, 15.243794, "Lux Club Zadar", "Zadar", "https://clublux-zadar.hr");
-        dodajKlub(45.327063, 14.442176, "Club Crkva", "Rijeka", "https://crkva.club");
-        dodajKlub(45.327063, 14.442176, "Karolina Club", "Rijeka", "https://karolina-club.com");
-        dodajKlub(45.327063, 14.442176, "Indigo Bar & Club", "Rijeka", "https://indigo-bar.hr");
-        dodajKlub(45.327063, 14.442176, "Rakhia Bar / Klub", "Rijeka", "https://ralphia-bar.com");
-        dodajKlub(45.327063, 14.442176, "Garçon Club", "Rijeka", "https://garcon-club.hr");
-        dodajKlub(45.551110, 18.693880, "Club Seven Osijek", "Osijek", "https://clubsevenosijek.hr");
-        dodajKlub(45.551110, 18.693880, "Banquet Club", "Osijek", "https://banquet-club.hr");
-        dodajKlub(45.551110, 18.693880, "Club Velvet", "Osijek", "https://clubvelvetosijek.hr");
-        dodajKlub(45.551110, 18.693880, "Club Mix", "Osijek", "https://clubmixosijek.hr");
-        dodajKlub(45.551110, 18.693880, "Club Vibe", "Osijek", "https://clubvibeosijek.hr");
-        dodajKlub(43.732540, 15.900290, "Falcon Club Luxury", "Šibenik", "https://falconclubluxury.hr");
-        dodajKlub(43.732540, 15.900290, "Club Silence", "Šibenik", "https://clubsilence.hr");
-        dodajKlub(43.732540, 15.900290, "Aqua Club", "Šibenik", "https://aquaclub-sibenik.hr");
-        dodajKlub(43.732540, 15.900290, "Metropolis Club", "Šibenik", "https://metropolisclub.hr");
-        dodajKlub(43.732540, 15.900290, "Club Hype", "Šibenik", "https://clubhype.hr");
+        // Klubovi u Zadru
+        dodajKlub(44.119, 15.243, "Club RAW", "Zadar", "Beach After Party", "ulaz ~10 €, piće od ~4-5 €", "https://clubrawzadar.hr");
+        dodajKlub(44.122, 15.240, "Papaya Zadar", "Zadar", "Festival Night", "ulaz ~20 €, piće ~6-7 €", "https://clubpapaya-zadar.hr");
+        dodajKlub(44.117, 15.245, "Blue Daydream Club", "Zadar", "Summer House Night", "ulaz ~9-10 €, piće od ~4 €", "https://clubbluedaydream.hr");
+        dodajKlub(44.120, 15.238, "Halo Club", "Zadar", "Latin & Reggaeton", "ulaz ~11-12 €, piće od ~4-5 €", "https://clubhalo-zadar.hr");
+        dodajKlub(44.115, 15.242, "Lux Club Zadar", "Zadar", "VIP Night", "ulaz ~15 €, piće ~6-7 €", "https://clublux-zadar.hr");
     </script>
 </body>
 </html>
